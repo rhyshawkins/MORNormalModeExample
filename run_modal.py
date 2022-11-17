@@ -340,12 +340,6 @@ if __name__ == '__main__':
             print('x error:', numpy.linalg.norm(t[:, 2] - rx))
             print('y error:', numpy.linalg.norm(t[:, 3] - ry))
         
-        if not (args.compare_txt is None):
-            t = numpy.loadtxt('%s-timedomain-seismo.txt' % args.compare_txt)
-
-            ax[0].plot(t[:,0], t[:,4])
-            ax[1].plot(t[:,0], t[:,5])
-
         if not (args.compare_specfem is None):
             tx = numpy.loadtxt('%s.BXX.semd' % args.compare_specfem)
             ty = numpy.loadtxt('%s.BXZ.semd' % args.compare_specfem)
