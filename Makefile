@@ -26,9 +26,16 @@ PAPER_T0=0.24
 PAPER_F=5.0
 PAPER_A=1.0e10
 
+#
+# Construct the matrices based on the example mesh and elastic paramters
+#
 paperM.npy :
 	python3 example.py
 
+#
+# Compute the seismograms in the time domain. This is the reference solution used to compare
+# the accuracy of various modal solutions below
+#
 paperSeismogram.npy : paperM.npy
 	python3 run_lddrk.py -i paper \
 	-s $(PAPER_SOURCE_X) -S $(PAPER_SOURCE_Y) \
@@ -40,11 +47,14 @@ paperSeismogram.npy : paperM.npy
 	-o $@
 
 #
-# Full eigen solution
+# Compute the full eigen solution, required for the various modal seismograms below
 #
 paper-eigval.npy : paperM.npy
 	python3 eigensolve.py -i paper -o paper
 
+#
+# Use the full eigen decomposition to compute the seismogram (without correcting rigid-body modes)
+#
 paperModalSeismogram.npy : paper-eigval.npy paperSeismogram.npy
 	python3 run_modal.py -i paper -e paper \
 	-s $(PAPER_SOURCE_X) -S $(PAPER_SOURCE_Y) \
@@ -56,6 +66,9 @@ paperModalSeismogram.npy : paper-eigval.npy paperSeismogram.npy
 	-c paperSeismogram.npy \
 	-o $@
 
+#
+# Same as above, but with rigid body modes corrected
+#
 paperModalSeismogramReplace.npy : paper-eigval.npy paperSeismogram.npy
 	python3 run_modal.py -i paper -e paper \
 	-s $(PAPER_SOURCE_X) -S $(PAPER_SOURCE_Y) \
@@ -69,7 +82,7 @@ paperModalSeismogramReplace.npy : paper-eigval.npy paperSeismogram.npy
 	--replace-rb
 
 #
-# Truncation
+# A Truncated modal solution only including frequencies below 12.5 Hz
 #
 paperModalSeismogramReplace_F12.5.npy : paper-eigval.npy paperSeismogram.npy
 	python3 run_modal.py -i paper -e paper \
@@ -85,7 +98,8 @@ paperModalSeismogramReplace_F12.5.npy : paper-eigval.npy paperSeismogram.npy
 	-F 12.5 
 
 #
-# Truncation with tapering
+# Same as above, but the Greens' functions are tapered before the convolution step to remove
+# ringing artifacts.
 #
 paperModalSeismogramReplaceTaper_F12.5.npy : paper-eigval.npy paperSeismogram.npy
 	python3 run_modal.py -i paper -e paper \
@@ -103,32 +117,35 @@ paperModalSeismogramReplaceTaper_F12.5.npy : paper-eigval.npy paperSeismogram.np
 	--taper-frequency 12.5 \
 	--show
 
+#
+# To replicate figures in the source manuscript
+#
 
 #
 # Figure 4: Full modal seismogram
 #
-Figure4:
+Figure4: paperModalSeismogramReplace.npy paperSeismogram.npy
 	python3 plot_seismogram.py -i paperModalSeismogramReplace.npy -c paperSeismogram.npy
 
 #
 # Figure 5: Modal seismogram with only eigen values corresponding to less than 12.5Hz
 #
-Figure5:
+Figure5: paperModalSeismogramReplace_F12.5.npy paperSeismogram.npy
 	python3 plot_seismogram.py -i paperModalSeismogramReplace_F12.5.npy -c paperSeismogram.npy
 
 #
 # Figure 6: Greens functions of full modal solution and truncated from Figures 4 and 5 respectively
-Figure6:
+Figure6: paperModalSeismogramReplace_F12.5.npy paperModalSeismogramReplace.npy
 	python3 plot_greens.py -i paperModalSeismogramReplace_F12.5.npy -c paperModalSeismogramReplace.npy
 
 #
 # Figure 7: Same as Figure 5, but with tapering applied to the Greens function to improve accuracy
 #
-Figure7:
+Figure7: paperModalSeismogramReplaceTaper_F12.5.npy paperSeismogram.npy
 	python3 plot_seismogram.py -i paperModalSeismogramReplaceTaper_F12.5.npy -c paperSeismogram.npy
 
 #
 # Figure A1(a): Modal solution without corrections for Rigid Body Modes
 #
-FigureA1:
+FigureA1: paperModalSeismogram.npy paperSeismogram.npy
 	python3 plot_seismogram.py -i paperModalSeismogram.npy -c paperSeismogram.npy
