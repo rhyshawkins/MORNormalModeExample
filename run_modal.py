@@ -340,19 +340,6 @@ if __name__ == '__main__':
             print('x error:', numpy.linalg.norm(t[:, 2] - rx))
             print('y error:', numpy.linalg.norm(t[:, 3] - ry))
         
-        if not (args.compare_specfem is None):
-            tx = numpy.loadtxt('%s.BXX.semd' % args.compare_specfem)
-            ty = numpy.loadtxt('%s.BXZ.semd' % args.compare_specfem)
-
-            # Use the peak to align seismograms
-            i1 = numpy.argmax(tx[:, 1])
-            i2 = numpy.argmax(rx)
-            delta = seismogram[i2, 0] - tx[i1, 0]
-        
-            ax[0].plot(tx[:, 0] + delta, tx[:, 1])
-            ax[1].plot(ty[:, 0] + delta, ty[:, 1])
-
-            
         P.show()
 
     seismogram[:,2] = rx
