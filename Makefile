@@ -114,8 +114,7 @@ paperModalSeismogramReplaceTaper_F12.5.npy : paper-eigval.npy paperSeismogram.np
 	--replace-rb \
 	-F 12.5 -T 80 \
 	--taper 0.125 \
-	--taper-frequency 12.5 \
-	--show
+	--taper-frequency 12.5 
 
 #
 # To replicate figures in the source manuscript

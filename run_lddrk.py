@@ -46,7 +46,7 @@ if __name__ == '__main__':
     parser.add_argument('-d', '--dt', type = float, default = 1.0e-3, help = 'Time step')
     parser.add_argument('-N', '--nsteps', type = int, default = 1000, help = 'No. steps')
 
-    
+    parser.add_argument('--show', action = 'store_true', default = False, help = 'Plot seismograms')
     
     args = parser.parse_args()
 
@@ -123,13 +123,14 @@ if __name__ == '__main__':
 
 
     numpy.save(args.output, seismogram)
-    
-    fig, ax = P.subplots(2, 1)
 
-    ax[0].plot(seismogram[:, 0], seismogram[:, 2])
-    ax[1].plot(seismogram[:, 0], seismogram[:, 3])
-
-    P.show()
+    if args.show:
+        fig, ax = P.subplots(2, 1)
+        
+        ax[0].plot(seismogram[:, 0], seismogram[:, 2])
+        ax[1].plot(seismogram[:, 0], seismogram[:, 3])
+        
+        P.show()
         
     
     
